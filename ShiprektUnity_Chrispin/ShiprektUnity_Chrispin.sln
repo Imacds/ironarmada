@@ -1,0 +1,29 @@
+Microsoft Visual Studio Solution File, Format Version 11.00
+# Visual Studio 2008
+
+Project("{F72CB19A-9E32-27FA-8997-BA0430A96F38}") = "ShiprektUnity_Chrispin", "Assembly-CSharp.csproj", "{28383726-B8CC-0E47-621F-AF0DEAB514A1}"
+EndProject
+Project("{F72CB19A-9E32-27FA-8997-BA0430A96F38}") = "ShiprektUnity_Chrispin", "Assembly-CSharp-Editor.csproj", "{80196DEA-0BA0-D858-4AEB-3A11DAB0D762}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{28383726-B8CC-0E47-621F-AF0DEAB514A1}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{28383726-B8CC-0E47-621F-AF0DEAB514A1}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{28383726-B8CC-0E47-621F-AF0DEAB514A1}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{28383726-B8CC-0E47-621F-AF0DEAB514A1}.Release|Any CPU.Build.0 = Release|Any CPU
+		{80196DEA-0BA0-D858-4AEB-3A11DAB0D762}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{80196DEA-0BA0-D858-4AEB-3A11DAB0D762}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{80196DEA-0BA0-D858-4AEB-3A11DAB0D762}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{80196DEA-0BA0-D858-4AEB-3A11DAB0D762}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Assembly-CSharp.csproj
+	EndGlobalSection
+EndGlobal
