@@ -2,7 +2,8 @@
 using System.Collections;
 
 [RequireComponent(typeof(Rigidbody2D))]
-public class Ship : Pawn {
+public class ShipController : Pawn 
+{
 	public float linearThrust = 100f;
 	public float angularThrust = 100f;
 
