@@ -11,7 +11,8 @@ using Steamworks;
 	Author : Hannah Crawford
 */
 
-public class PlayerController : NetworkedMonoBehavior{
+public class PlayerController : NetworkedMonoBehavior
+{
 	public string steamName = "Unknown Player";
 
 	// The pawn to spawn when the client joins.
