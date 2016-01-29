@@ -130,7 +130,7 @@ public class Unit_Physics : MonoBehaviour
 			transform.Translate (velocity);
 
 			// Make sure speed is 0 by default if no external input
-			moveVel = Vector2.zero;
+			//moveVel = Vector2.zero;
 			pushVel = Vector2.zero;
 			velocity = Vector2.zero;
 		}
