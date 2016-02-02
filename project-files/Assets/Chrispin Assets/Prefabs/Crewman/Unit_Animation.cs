@@ -12,7 +12,9 @@ public class Unit_Animation : NetworkedMonoBehavior
 	Vector2 lastFacingVec;
 
 	[NetSync]
-	Vector2 moveVel;
+	float moveSpeed;
+	[NetSync]
+	Vector2 facingVector;
 
 	// Use this for initialization
 	void Start () 
@@ -27,28 +29,34 @@ public class Unit_Animation : NetworkedMonoBehavior
 	// Update is called once per frame
 	void Update () 
 	{
-		if (IsOwner)
-			moveVel = unitPhysics.MoveVelocity;
 		
-		float moveSpeed = moveVel.magnitude;
+		Vector2 moveVel = unitPhysics.MoveVelocity;
+
+		if (IsOwner)
+			moveSpeed = moveVel.magnitude;
+
+		Vector2 transPos2D = transform.position;
+		Vector2 aimPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+
+		//sync velocity and facing
+		if (IsOwner)
+		{
+			if (moveSpeed > 0.0f) 
+			{
+				facingVector = moveVel;
+			}
+			else
+			{
+				facingVector = aimPos - transPos2D;
+			}
+		}
 
 		//animation
-		Vector2 spriteFaceVec;
-		if (moveSpeed > 0.0f) 
-		{
-			spriteFaceVec = moveVel;
-			lastFacingVec = moveVel;
-		}
-		else
-		{
-			spriteFaceVec = lastFacingVec;
-		}
-
 		anim.SetFloat("runSpeed", moveSpeed); 
 		if (sprite != null)
 		{
-			float spriteAngle = Vector2.Angle(spriteFaceVec, Vector2.right);
-			Vector3 cross = Vector3.Cross(spriteFaceVec, Vector2.right);
+			float spriteAngle = Vector2.Angle(facingVector, Vector2.right);
+			Vector3 cross = Vector3.Cross(facingVector, Vector2.right);
 			if (cross.z > 0)
 				spriteAngle = 360 - spriteAngle;
 
