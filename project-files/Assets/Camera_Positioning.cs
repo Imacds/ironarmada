@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
+using BeardedManStudios.Network;
 
-public class Camera_Positioning : MonoBehaviour 
+public class Camera_Positioning : SimpleNetworkedMonoBehavior 
 {
 
 	PlayerController playerController;
@@ -17,7 +18,7 @@ public class Camera_Positioning : MonoBehaviour
 	{
 		Pawn possesedPawn = playerController.possesedPawn;
 
-		if(possesedPawn)
+		if(possesedPawn && IsOwner)
 		{
 			Camera.main.transform.position = new Vector3(0,0,-10) + possesedPawn.transform.position;
 		}
