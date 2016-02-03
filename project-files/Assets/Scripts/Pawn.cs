@@ -10,7 +10,8 @@ public class Pawn : NetworkedMonoBehavior {
 
 	// Update function called only on the owner's machine.
 	// Most often used to handle player's input.
-	public virtual void ControlledUpdateOwner(PlayerController controller){
+	public virtual void ControlledUpdateOwner(PlayerController controller)
+	{
 		
 	}
 

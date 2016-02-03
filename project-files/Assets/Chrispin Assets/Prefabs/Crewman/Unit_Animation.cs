@@ -8,8 +8,6 @@ public class Unit_Animation : NetworkedMonoBehavior
 
 	Animator anim;
 	Transform sprite;
-	SpriteRenderer spriteRen;
-	Vector2 lastFacingVec;
 
 	[NetSync]
 	float moveSpeed;
@@ -23,7 +21,6 @@ public class Unit_Animation : NetworkedMonoBehavior
 
 		sprite = transform.Find("Sprite");
 		anim = sprite.GetComponent<Animator>();
-		spriteRen = sprite.GetComponent<SpriteRenderer>();
 	}
 	
 	// Update is called once per frame
