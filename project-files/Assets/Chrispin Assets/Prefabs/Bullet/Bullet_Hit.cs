@@ -20,8 +20,7 @@ public class Bullet_Hit : SimpleNetworkedMonoBehavior {
 				} else {
 					Debug.Log ("Bullet Trigger other");
 					// Hit another person! Woo!
-					other.GetComponent<Unit_Health> ().health -= damage;
-					damage = 0;
+					other.GetComponent<Unit_Health> ().RPC("doDamage", damage);
 					Networking.Destroy (this);
 				}
 			} else {

@@ -24,10 +24,6 @@ public class Bullet_Velocity : NetworkedMonoBehavior
 		transform.position = transPos2D + velocity;
 	}
 
-	void Awake() {
-		AddNetworkVariable (() => velocity, v => velocity = (Vector2) v);
-	}
-
 	[BRPC]
 	public void setV(Vector2 v) {
 		velocity = v;
