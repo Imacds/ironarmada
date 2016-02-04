@@ -42,9 +42,9 @@ public class Unit_Shooting : Pawn
 		Networking.Instantiate(bulletPrefab, transPos2D, Quaternion.identity, NetworkReceivers.All, callback: BulletSpawned);
 	}
 
-	//Callback
+	// Callback only happens on the participant that calls instantiate, so we use RPC to set up bullet velocity.
 	void BulletSpawned( SimpleNetworkedMonoBehavior bullet )
 	{
-		bullet.GetComponent<Bullet_Velocity>().Velocity = shootDir*bulletSpeed;
+		bullet.GetComponent<Bullet_Velocity>().RPC("setV", shootDir*bulletSpeed);
 	}
 }
