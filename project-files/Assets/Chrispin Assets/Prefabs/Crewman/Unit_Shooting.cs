@@ -46,5 +46,6 @@ public class Unit_Shooting : Pawn
 	void BulletSpawned( SimpleNetworkedMonoBehavior bullet )
 	{
 		bullet.GetComponent<Bullet_Velocity>().RPC("setV", shootDir*bulletSpeed);
+		bullet.GetComponent<Bullet_Hit>().RPC("setShooterNetworkedId", NetworkedId);
 	}
 }

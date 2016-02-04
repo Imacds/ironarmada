@@ -7,12 +7,13 @@ public class Unit_Health : NetworkedMonoBehavior
 {
 	const int INIT_HEALTH = 100;
 
-	int health = INIT_HEALTH;
+	public int health = INIT_HEALTH;
 
 	Text healthText;
 
 	private void Awake() {
 		healthText = GameObject.Find ("HealthText").GetComponent<Text>();
+		AddNetworkVariable (() => health, h => health = (int) h);
 	}
 
 
