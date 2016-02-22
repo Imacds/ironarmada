@@ -6,7 +6,7 @@ public class Unit_Shooting : Pawn
 {
 	public GameObject bulletPrefab = null;
 
-	float bulletSpeed = 0.32f;
+	float bulletSpeed = 0.08f;
 	int damage = 25;
 	float range = 200;
 	[SerializeField] Transform myTransform;
