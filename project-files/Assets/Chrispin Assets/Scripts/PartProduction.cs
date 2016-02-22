@@ -12,7 +12,7 @@ public class PartProduction : SimpleNetworkedMonoBehavior
 	{
 		int myGOTeam = myGO.GetComponent<Generic_Team>().TeamNum;
 
-		if (OwningNetWorker.IsServer)
+		if (true)	// was OwningNetWorker.IsServer
 		{
 			for ( int i = 0; i < amount; i++ )
 			{
