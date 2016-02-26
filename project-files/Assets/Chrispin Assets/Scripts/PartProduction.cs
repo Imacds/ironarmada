@@ -6,7 +6,15 @@ using BeardedManStudios.Network;
 public class PartProduction : SimpleNetworkedMonoBehavior 
 {
 	public GameObject partPrefab;
-	List<GameObject> parts = new List<GameObject>();
+	List<GameObject> partsToAdd = new List<GameObject>();
+
+	int gOID;
+
+	void Start()
+	{
+		partsToAdd = GetComponent<Unit_PartPlacement>().parts;
+		gOID = GetInstanceID();
+	}
 
 	public void ProducePart( GameInfo gameInfo, GameObject myGO, int amount = 1 )
 	{
@@ -14,26 +22,12 @@ public class PartProduction : SimpleNetworkedMonoBehavior
 
 		if (true)	// was OwningNetWorker.IsServer
 		{
+			partsToAdd.Clear();
 			for ( int i = 0; i < amount; i++ )
 			{
 				MakePart( new Vector2( i, 0 ), Vector2.zero, 0.0f, myGOTeam );
 			}
-
-			List<GameObject> myGO_parts = myGO.GetComponent<Unit_PartPlacement>().parts;
-			myGO_parts.Clear();
-			int gOID = myGO.GetInstanceID();
-			//u16 playerID = blob.getPlayer().getNetworkID();
-			for (int i = 0; i < parts.Count; i++)
-			{
-				Debug.Log("Part added");
-				GameObject gO = parts[i];
-				myGO_parts.Add( gO );	
-				gO.GetComponent<Part_Info>().OwnerID = gOID;
-				//b.set_u16( "playerID", playerID );
-				gO.GetComponent<Part_Info>().ShipID = -1; // don't push on ship
-			}
-			GetComponent<Unit_PartPlacement>().parts = myGO_parts;
-			parts.Clear();
+			GetComponent<Unit_PartPlacement>().parts = partsToAdd;
 		}
 	}
 
@@ -47,10 +41,16 @@ public class PartProduction : SimpleNetworkedMonoBehavior
 	{
 		//part.getSprite().SetFrame( blockType );
 		//part.set_f32( "weight", Block::getWeight( block ) );
+		GameObject partGO = part.gameObject;
+
+		partsToAdd.Add( partGO );	
+		partGO.GetComponent<Part_Info>().OwnerID = gOID;
+		//b.set_u16( "playerID", playerID );
+		partGO.GetComponent<Part_Info>().ShipID = -1; // don't push on ship
 
 		part.GetComponent<Part_Info>().ShipID = 0;
 		part.GetComponent<Part_Info>().PlacedTime = Time.time;
 
-		parts.Add(part.gameObject);
+		Debug.Log("part spawned");
 	}
 }

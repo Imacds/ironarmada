@@ -59,7 +59,6 @@ public class Unit_PartPlacement : Pawn
 		{
 			PartProduction productionScript = GetComponent<PartProduction>();
 			productionScript.ProducePart(gameInfo, myGO);
-			Debug.Log("part produced");
 		}
 
 		if (parts != null && parts.Count > 0)
@@ -244,7 +243,7 @@ public class Unit_PartPlacement : Pawn
 		//get offset (based on the centerblock) of block we're standing on
 		Vector2 refPartPos2D = refPart.transform.position;
 		Vector2 refPOffset = refPartPos2D - ship_pos;
-		float gridSize = 0.16f;
+		float gridSize = ShipFunctions.gridSize;
 		float halfGridSize = gridSize/2.0f;
 		refPOffset = RotateVector2(refPOffset, -refPAngle);
 		refPOffset.x = refPOffset.x % gridSize;

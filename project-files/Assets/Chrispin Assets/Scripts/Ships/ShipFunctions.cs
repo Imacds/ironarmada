@@ -4,7 +4,7 @@ using System.Collections.Generic;
 
 public class ShipFunctions : MonoBehaviour
 {
-	static float gridSize = 0.16f;
+	public static float gridSize = 0.16f;
 
 	public static Ship getShip( int shipID )
 	{		
