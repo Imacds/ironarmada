@@ -25,7 +25,8 @@ public class Bullet_Velocity : NetworkedMonoBehavior
 	}
 
 	[BRPC]
-	public void setV(Vector2 v) {
+	public void setV(Vector2 v) 
+	{
 		velocity = v;
 	}
 }
