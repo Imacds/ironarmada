@@ -1,14 +1,14 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Unit_Controller : MonoBehaviour 
+public class Unit_Controller : Pawn 
 {
 	Vector2 moveNorm;
 	Vector2 moveVelocity;
 
 	// movement properties
 	float acceleration = 0.2f;
-	float maxWalkSpeed = 0.01f;
+	float maxWalkSpeed = 0.03f;
 
 	Unit_Physics unitPhysics;
 
@@ -19,13 +19,13 @@ public class Unit_Controller : MonoBehaviour
 	}
 	
 	// Update is called once per frame
-	void Update()
+	public override void ControlledUpdateOwner(PlayerController controller)
 	{
 		float xMove = Input.GetAxisRaw("Horizontal");
 		float yMove = Input.GetAxisRaw("Vertical");
 		moveNorm = new Vector2(xMove, yMove);
 		moveNorm.Normalize ();
-	}
+	} 
 
 	void FixedUpdate() 
 	{

@@ -1,9 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
-using UnityEngine.Networking;
 using System.Collections.Generic;
+using BeardedManStudios.Network;
 
-public class Unit_PartPlacement : NetworkBehaviour 
+public class Unit_PartPlacement : Pawn 
 {
 	const float rotate_speed = 10.0f;
 	const float max_build_distance = 0.64f;
@@ -11,44 +11,28 @@ public class Unit_PartPlacement : NetworkBehaviour
 
 	public List<GameObject> parts;
 	public float parts_angle = 0.0f;	//next step angle
-	public float target_angle = 0.0f;	//final angle after manual rotation
+	[NetSync] public float target_angle = 0.0f;	//final angle after manual rotation
 
-	[SyncVar] public Vector2 aim_pos;
+	[NetSync] public Vector2 aim_pos;
 	Vector2 lastAimPos;
 	float aimPosThreshold = 0.01f; 
 
 	GameInfo gameInfo;
 
-	ShipFunctions shipFunctions;
-
 	void Start()
 	{
 		parts = new List<GameObject>();
 		gameInfo = GameObject.Find("GameManager").GetComponent<GameInfo>();
-		shipFunctions = this.gameObject.GetComponent<ShipFunctions>();
 		//myGO.addCommandID("place");
 	}
-
-	[Command]
-	void CmdSendAimPosToServer (Vector2 pos)
-	{
-		aim_pos = pos;
-	}
-
-	[Command]
-	void CmdSendTargetAngleToServer (float angle)
-	{
-		target_angle = angle;
-	}
-
-	[ClientCallback]
+		
 	void TransmitAimPos(Vector2 pos)
 	{
-		if ( isLocalPlayer )
+		if ( IsOwner )
 		{
 			if ( Vector2.Distance(pos, lastAimPos) > aimPosThreshold )
 			{
-				CmdSendAimPosToServer(pos);
+				aim_pos = pos;
 				lastAimPos = pos;
 			}
 		}
@@ -71,9 +55,9 @@ public class Unit_PartPlacement : NetworkBehaviour
 	{
 		GameObject myGO = this.gameObject;
 
-		if (Input.GetMouseButtonDown(1))
+		if (IsOwner && Input.GetKeyDown(KeyCode.Mouse1))
 		{
-			PartProduction productionScript = myGO.GetComponent<PartProduction>();
+			PartProduction productionScript = GetComponent<PartProduction>();
 			productionScript.ProducePart(gameInfo, myGO);
 		}
 
@@ -82,13 +66,13 @@ public class Unit_PartPlacement : NetworkBehaviour
 			Vector2 pos = myGO.transform.position;
 			aim_pos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
 			TransmitAimPos(aim_pos);
-
-			Ship ship = shipFunctions.getShip(myGO);
+			
+			Ship ship = ShipFunctions.getShip(myGO);
 			if (ship != null && ship.centerPart != null)
 			{
 				Vector2 shipPos = ship.centerPart.transform.position;
 
-				GameObject refGO = shipFunctions.getShipGO(myGO);
+				GameObject refGO = ShipFunctions.getShipGO(myGO);
 
 				if (refGO == null)
 				{
@@ -96,21 +80,21 @@ public class Unit_PartPlacement : NetworkBehaviour
 					return;
 				}
 
-				if ( isClient )
+				if ( true )	// prevously !OwningNetWorker.IsServer
 				{
 					PositionParts( pos, aim_pos, parts_angle, ship.centerPart, refGO );
 				}
 
 				//CPlayer@ player = this.getPlayer();
 				//if (player !is null && player.isMyPlayer()) 
-				if (isLocalPlayer) 
+				if (IsOwner) 
 				{
 					//checks for canPlace
 					//u32 gameTime = getGameTime();
 					//CRules@ rules = getRules();
 					//bool skipCoreCheck = gameTime > getRules().get_u16( "warmup_time" ) || ( ship.isMothership && ( ship.owner == "" ||  ship.owner == "*" || ship.owner == player.getUsername() ) );
 					//bool cLinked = false;
-					bool overlappingShip = shipFunctions.partsOverlappingShip( parts );
+					bool overlappingShip = ShipFunctions.partsOverlappingShip( parts );
 					for (uint i = 0; i < parts.Count; ++i)
 					{
 						if ( overlappingShip )
@@ -145,7 +129,7 @@ public class Unit_PartPlacement : NetworkBehaviour
 
 					// place
 					//if (this.isKeyJustPressed( key_action1 ) && !getHUD().hasMenus() && !getHUD().hasButtons() )
-					if ( Input.GetMouseButtonDown(0) )
+					if ( Input.GetKeyDown(KeyCode.Mouse0) )
 					{
 						if (target_angle == parts_angle && !overlappingShip)
 						{
@@ -176,22 +160,21 @@ public class Unit_PartPlacement : NetworkBehaviour
 							target_angle -= 360.0f;
 							parts_angle -= 360.0f;
 						}
-						CmdSendTargetAngleToServer(target_angle);
 					}
 				}
 			}
 			else
 			{
 				// part placement off ship
-				if ( isClient )
+				if ( true )	// prevously !OwningNetWorker.IsServer
 				{
 					PositionPartsOffShip( pos, aim_pos, parts_angle );
 				}
 					
-				if (isLocalPlayer) 
+				if (IsOwner) 
 				{
 					//checks for canPlace
-					bool overlappingShip = shipFunctions.partsOverlappingShip( parts );
+					bool overlappingShip = ShipFunctions.partsOverlappingShip( parts );
 					for (uint i = 0; i < parts.Count; ++i)
 					{
 						if ( overlappingShip )
@@ -202,7 +185,7 @@ public class Unit_PartPlacement : NetworkBehaviour
 					}
 
 					// place
-					if ( Input.GetMouseButtonDown(0) )
+					if ( Input.GetKeyDown(KeyCode.Mouse0) )
 					{
 						if (target_angle == parts_angle && !overlappingShip)
 						{
@@ -223,7 +206,6 @@ public class Unit_PartPlacement : NetworkBehaviour
 							target_angle -= 360.0f;
 							parts_angle -= 360.0f;
 						}
-						CmdSendTargetAngleToServer(target_angle);
 					}
 				}
 			}
@@ -261,7 +243,7 @@ public class Unit_PartPlacement : NetworkBehaviour
 		//get offset (based on the centerblock) of block we're standing on
 		Vector2 refPartPos2D = refPart.transform.position;
 		Vector2 refPOffset = refPartPos2D - ship_pos;
-		float gridSize = 0.16f;
+		float gridSize = ShipFunctions.gridSize;
 		float halfGridSize = gridSize/2.0f;
 		refPOffset = RotateVector2(refPOffset, -refPAngle);
 		refPOffset.x = refPOffset.x % gridSize;
@@ -278,7 +260,7 @@ public class Unit_PartPlacement : NetworkBehaviour
 		aimPos = pos + mouseAim * mouseDist;//position of the 'buildpart' pointer
 		Vector2 shipAim = aimPos - ship_pos;//ship to 'buildpart' pointer
 		shipAim = RotateVector2( shipAim, -refPAngle );
-		shipAim = shipFunctions.RelSnapToGrid( shipAim );
+		shipAim = ShipFunctions.RelSnapToGrid( shipAim );
 		shipAim = RotateVector2( shipAim, refPAngle );
 		Vector2 cursor_pos = ship_pos + shipAim;//position of snapped build part
 
@@ -315,7 +297,7 @@ public class Unit_PartPlacement : NetworkBehaviour
 		float mouseDist = Mathf.Min( mouseAim.magnitude, max_build_distance );
 		mouseAim.Normalize();
 		aimPos = pos + mouseAim * mouseDist;	//position of the 'buildpart' pointer
-		aimPos = shipFunctions.RelSnapToGrid( aimPos );
+		aimPos = ShipFunctions.RelSnapToGrid( aimPos );
 		Vector2 cursor_pos = aimPos;	//position of snapped build part
 
 		//rotate and position parts
@@ -333,7 +315,7 @@ public class Unit_PartPlacement : NetworkBehaviour
 		}
 	}
 
-	[Command]
+	[BRPC]
 	void CmdPlace (GameObject centerPart, GameObject refGO, Vector2 pos_offset, Vector2 aimPos_offset, float ship_angle)
 	{
 		if (centerPart == null || refGO == null)
@@ -342,7 +324,7 @@ public class Unit_PartPlacement : NetworkBehaviour
 			return;
 		}
 
-		Ship ship = shipFunctions.getShip( centerPart.GetComponent<Part_Info>().ShipID );
+		Ship ship = ShipFunctions.getShip( centerPart.GetComponent<Part_Info>().ShipID );
 		if (ship == null)
 		{
 			Debug.Log("place cmd: ship not found");
@@ -372,7 +354,7 @@ public class Unit_PartPlacement : NetworkBehaviour
 						//if ( gO.getSprite().getFrame() == 0 )	z = 509.0f;//platforms
 						//else if ( gO.hasTag( "weapon" ) )	z = 511.0f;//weaps
 						//SetDisplay( gO, color_white, RenderStyle::normal, z );
-						if ( !isServer )//add it locally till a sync
+						if ( true )	// prevously !OwningNetWorker.IsServer, to add locally till a sync
 						{
 							ShipPart ship_part = null;
 							ship_part.gameObjectID = gO.GetInstanceID();
@@ -416,7 +398,7 @@ public class Unit_PartPlacement : NetworkBehaviour
 		//directionalSoundPlay( "build_ladder.ogg", this.getPosition() );
 	}
 
-	[Command]
+	[BRPC]
 	void CmdPlaceOffShip (Vector2 pos, Vector2 aimPos )
 	{
 		bool blocksPlaced = false;
@@ -437,9 +419,9 @@ public class Unit_PartPlacement : NetworkBehaviour
 						//if ( gO.getSprite().getFrame() == 0 )	z = 509.0f;//platforms
 						//else if ( gO.hasTag( "weapon" ) )	z = 511.0f;//weaps
 						//SetDisplay( gO, color_white, RenderStyle::normal, z );
-						if ( !isServer )//add it locally till a sync
+						if ( true )	// prevously !OwningNetWorker.IsServer, to add locally till a sync
 						{
-							ShipPart ship_part = null;
+							ShipPart ship_part = new ShipPart();
 							ship_part.gameObjectID = gO.GetInstanceID();
 							Vector2 gOTransPos2D = gO.transform.position;
 							gO.GetComponent<Part_Info>().OwnerID = shipID;
@@ -471,8 +453,8 @@ public class Unit_PartPlacement : NetworkBehaviour
 			Debug.Log("place cmd: no parts");
 			return;
 		}
-
-		parts.Clear();//releases the parts (they are placed)
+			
+		parts.Clear();		//releases the parts (they are placed)
 		gameInfo.DirtyShipSync = true;
 		//directionalSoundPlay( "build_ladder.ogg", this.getPosition() );
 	}

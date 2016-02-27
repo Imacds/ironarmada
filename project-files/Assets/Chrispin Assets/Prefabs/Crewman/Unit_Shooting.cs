@@ -1,78 +1,51 @@
 ﻿using UnityEngine;
 using System.Collections;
-using UnityEngine.Networking;
+using BeardedManStudios.Network;
 
-public class Unit_Shooting : NetworkBehaviour {
+public class Unit_Shooting : Pawn 
+{
+	public GameObject bulletPrefab = null;
 
+	float bulletSpeed = 0.08f;
 	int damage = 25;
 	float range = 200;
 	[SerializeField] Transform myTransform;
 	RaycastHit2D hit;
 
+	Animator anim;
+	Transform sprite;
+
+	[NetSync]
+	Vector2 shootDir;
+
 	// Use this for initialization
 	void Start () 
 	{
-	
-	}
-	
-	// Update is called once per frame
-	void Update () 
-	{
-		CheckIfShooting();
+		sprite = transform.Find("Sprite");
+		anim = sprite.GetComponent<Animator>();
 	}
 
-	void CheckIfShooting()
+	void Update ()
 	{
-		if (!isLocalPlayer)
-		{
-			return;
-		}
-
-		if (Input.GetKeyDown(KeyCode.Mouse0))
+		if (IsOwner && Input.GetKeyDown(KeyCode.Mouse0))
 		{
 			Shoot();
 		}
 	}
-
+		
 	void Shoot()
 	{	
-		hit = Physics2D.Raycast(myTransform.TransformPoint(0.10f, 0, 0), myTransform.right, range);
-		//Debug.DrawRay(myTransform.TransformPoint(0.10f, 0, 0), myTransform.right);
-		if (hit)
-		{
-			Debug.Log(hit.transform.tag);
+		Vector2 transPos2D = transform.position;
+		Vector2 aimPos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+		shootDir = (aimPos - transPos2D).normalized;
 
-			if (hit.transform.tag == "Player")
-			{
-				string hitID = hit.transform.name;
-
-				CmdSendIDHit( hitID, damage );
-			}
-			else if (hit.transform.tag == "Enemy")
-			{
-				string hitID = hit.transform.name;
-
-				CmdSendEnemyIDHit( hitID, damage );
-			}	
-
-		}
+		Networking.Instantiate(bulletPrefab, transPos2D, Quaternion.identity, NetworkReceivers.All, callback: BulletSpawned);
 	}
 
-	[Command]
-	void CmdSendIDHit( string identity, int dmg )
+	// Callback only happens on the participant that calls instantiate, so we use RPC to set up bullet velocity.
+	void BulletSpawned( SimpleNetworkedMonoBehavior bullet )
 	{
-		GameObject hitGO = GameObject.Find(identity);
-		hitGO.GetComponent<Unit_Health>().takeDamage(dmg);
-
-	}
-
-	[Command]
-	void CmdSendEnemyIDHit( string identity, int dmg )
-	{
-		GameObject hitGO = GameObject.Find(identity);
-		if ( hitGO != null )
-		{
-			hitGO.GetComponent<Enemy_Health>().takeDamage(dmg);
-		}
+		bullet.GetComponent<Bullet_Velocity>().RPC("setV", shootDir*bulletSpeed);
+		bullet.GetComponent<Bullet_Hit>().RPC("setShooterNetworkedId", NetworkedId);
 	}
 }

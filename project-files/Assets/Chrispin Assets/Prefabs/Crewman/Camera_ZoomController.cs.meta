@@ -1,11 +1,10 @@
 fileFormatVersion: 2
-guid: 73f854d2b67f6624ea1607ed4f2e6322
-timeCreated: 1456556119
+guid: 30c55214f020287488220a4740526ad3
+timeCreated: 1453942165
 licenseType: Free
 MonoImporter:
   serializedVersion: 2
-  defaultReferences:
-  - partPrefab: {fileID: 119936, guid: 871c1fb1ca683b64ab8f984c5ba4013d, type: 2}
+  defaultReferences: []
   executionOrder: 0
   icon: {instanceID: 0}
   userData: 

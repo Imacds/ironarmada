@@ -1,90 +1,64 @@
 ﻿using UnityEngine;
 using System.Collections;
-using UnityEngine.Networking;
+using BeardedManStudios.Network;
 using UnityEngine.UI;
 
-public class Unit_Health : NetworkBehaviour 
+public class Unit_Health : NetworkedMonoBehavior 
 {
 	const int INIT_HEALTH = 100;
 
-	[SyncVar (hook = "OnHealthChange")] 
-	int health = INIT_HEALTH;
+	public int health = INIT_HEALTH;
+	public bool dead = false;
+	public float respawnTimer = 0;
 
 	Text healthText;
 
-	bool shouldDie = false;
-	public bool isDead = false;
-
-	public delegate void DieDelegate();
-	public event DieDelegate EventDie;
-
-	public delegate void RespawnDelegate();
-	public event RespawnDelegate EventRespawn;
-
-	public override void OnStartLocalPlayer ()
-	{
+	void Awake() {
 		healthText = GameObject.Find ("HealthText").GetComponent<Text>();
-		SetHealthText();
-	}
-	
-	// Update is called once per frame
-	void Update () 
-	{
-		CheckCondition();
 	}
 
-	void CheckCondition()
-	{
-		if (health <= 0 && !shouldDie && !isDead)
-		{
-			shouldDie = true;
-		}
-
-		if (health <= 0 && shouldDie)
-		{
-			if (EventDie != null)
-			{
-				EventDie();
-			}
-
-			shouldDie = false;
-		}
-
-		if (health > 0 && isDead)
-		{
-			if (EventRespawn != null)
-			{
-				EventRespawn();
-			}
-
-			isDead = false;
-		}
+	[BRPC]
+	public void doDamage(int dmg) {
+		health -= dmg;
+		Debug.Log ("Damage taken " + dmg);
 	}
 
-	void SetHealthText()
-	{
-		if (isLocalPlayer)
-		{
+	[BRPC]
+	public void respawn() {
+		health = INIT_HEALTH;
+	}
+
+	void Update() {
+		if (IsSetup && IsOwner) {
 			healthText.text = "Health: " + health.ToString();
 		}
 
-	}
+		if (health <= 0 && !dead) {
+			dead = true;
+			GetComponentInChildren<SpriteRenderer> ().enabled = false;
+			transform.FindChild ("DeathParticles").GetComponent<ParticleSystem> ().Play ();
+			GetComponent<Unit_Controller> ().enabled = false;
+			GetComponent<Unit_Shooting> ().enabled = false;
+		}
 
-	public void takeDamage(int dmg)
-	{
-		health -= dmg;
-	}
+		if (dead && health > 0) {
+			dead = false;
+			GetComponentInChildren<SpriteRenderer> ().enabled = true;
+			transform.FindChild ("DeathParticles").GetComponent<ParticleSystem> ().Stop ();
+			transform.FindChild ("DeathParticles").GetComponent<ParticleSystem> ().Clear ();
+			transform.FindChild ("DeathParticles").GetComponent<ParticleSystem> ().time = 0;
+			// A shiny penny for anyone who figures out how to reset the bloody particle system so it can have another pop
+			// next time the character dies.
+			GetComponent<Unit_Controller> ().enabled = true;
+			GetComponent<Unit_Shooting> ().enabled = true;
+		}
 
-	void OnHealthChange(int newHealth)
-	{
-		health = newHealth;
-
-		SetHealthText();
-		CheckCondition();
-	}
-
-	public void ResetHealth()
-	{
-		health = INIT_HEALTH;
+		if (dead && Networking.PrimarySocket.IsServer) {
+			respawnTimer += Time.deltaTime;
+			if (respawnTimer >= 5) {
+				respawnTimer = 0;
+				RPC ("respawn");
+			}
+		}
 	}
 }

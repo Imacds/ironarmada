@@ -4,9 +4,9 @@ using System.Collections.Generic;
 
 public class ShipFunctions : MonoBehaviour
 {
-	float gridSize = 0.16f;
+	public static float gridSize = 0.32f;
 
-	public Ship getShip( int shipID )
+	public static Ship getShip( int shipID )
 	{		
 		GameInfo gameInfo = GameObject.Find("GameManager").GetComponent<GameInfo>();
 		Ship[] ships = gameInfo.AllShips;
@@ -21,7 +21,7 @@ public class ShipFunctions : MonoBehaviour
 	}
 
 
-	public Ship getShip( GameObject myGO )
+	public static Ship getShip( GameObject myGO )
 	{
 		Collider2D[] collidersInRadius = Physics2D.OverlapCircleAll(myGO.transform.position, 1.0f );
 		if ( collidersInRadius.Length > 0 )
@@ -44,7 +44,7 @@ public class ShipFunctions : MonoBehaviour
 		return null;
 	}
 		
-	public GameObject getShipGO( GameObject myGO )
+	public static GameObject getShipGO( GameObject myGO )
 	{
 		GameObject closestGO = null;
 		float mDist = 9999;
@@ -70,7 +70,7 @@ public class ShipFunctions : MonoBehaviour
 		return closestGO;
 	}
 
-	public Vector2 RelSnapToGrid( Vector2 pos )
+	public static Vector2 RelSnapToGrid( Vector2 pos )
 	{
 		float halfGridSize = gridSize/2.0f;
 
@@ -82,7 +82,7 @@ public class ShipFunctions : MonoBehaviour
 		return pos;
 	}
 
-	public void SetNextId( GameInfo gameInfo, Ship ship )
+	public static void SetNextId( GameInfo gameInfo, Ship ship )
 	{
 		//islands.id = this.get_u32("islands id")+1;
 		//this.set_u32("islands id", islands.id);
@@ -90,7 +90,7 @@ public class ShipFunctions : MonoBehaviour
 		gameInfo.ShipsID = ship.id;
 	}
 
-	public GameObject getMothership( ushort team )
+	public static GameObject getMothership( ushort team )
 	{
 		GameObject[] mothershipParts = GameObject.FindGameObjectsWithTag("mothership");
 		for (uint i=0; i < mothershipParts.Length; i++)
@@ -104,7 +104,7 @@ public class ShipFunctions : MonoBehaviour
 		return null;
 	}
 
-	public GameObject getMothership( GameObject myGO )
+	public static GameObject getMothership( GameObject myGO )
 	{
 		GameObject core = null;
 		int shipID = myGO.GetComponent<Part_Info>().ShipID;
@@ -124,7 +124,7 @@ public class ShipFunctions : MonoBehaviour
 		return core;
 	}
 
-	public bool isMothership( GameObject myGO )
+	public static bool isMothership( GameObject myGO )
 	{
 		int shipID = myGO.GetComponent<Part_Info>().ShipID;
 		if ( shipID == 0 ) 
@@ -137,7 +137,7 @@ public class ShipFunctions : MonoBehaviour
 			return false;
 	}
 
-	public string getCaptainName( ushort team )
+	public static string getCaptainName( ushort team )
 	{
 		GameObject[] cores = GameObject.FindGameObjectsWithTag("mothership");
 		for ( ushort i = 0; i < cores.Length; i++ )
@@ -152,7 +152,7 @@ public class ShipFunctions : MonoBehaviour
 		return "";
 	}
 
-	public bool partsOverlappingShip( List<GameObject> parts )
+	public static bool partsOverlappingShip( List<GameObject> parts )
 	{
 		bool result = false;
 		for (int i = 0; i < parts.Count; ++i)
@@ -164,7 +164,7 @@ public class ShipFunctions : MonoBehaviour
 		return result; 
 	}
 
-	public bool partOverlappingShip( GameObject part )
+	public static bool partOverlappingShip( GameObject part )
 	{
 		Collider2D[] overlappingColliders = Physics2D.OverlapCircleAll(part.transform.position, 8.0f );;
 		if ( overlappingColliders.Length > 0 )

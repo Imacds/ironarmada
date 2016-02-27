@@ -1,54 +1,56 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
-using UnityEngine.Networking;
+using BeardedManStudios.Network;
 
-public class PartProduction : NetworkBehaviour 
+public class PartProduction : SimpleNetworkedMonoBehavior 
 {
 	public GameObject partPrefab;
+	List<GameObject> partsToAdd = new List<GameObject>();
+
+	int gOID;
+
+	void Start()
+	{
+		partsToAdd = GetComponent<Unit_PartPlacement>().parts;
+		gOID = GetInstanceID();
+	}
 
 	public void ProducePart( GameInfo gameInfo, GameObject myGO, int amount = 1 )
 	{
 		int myGOTeam = myGO.GetComponent<Generic_Team>().TeamNum;
 
-		if (isServer)
+		if (true)	// was OwningNetWorker.IsServer
 		{
-			List<GameObject> parts = new List<GameObject>();
+			partsToAdd.Clear();
 			for ( int i = 0; i < amount; i++ )
 			{
-				parts.Add(MakePart( new Vector2( i, 0 ), Vector2.zero, 0.0f, myGOTeam ));
+				MakePart( new Vector2( i, 0 ), Vector2.zero, 0.0f, myGOTeam );
 			}
-
-			List<GameObject> myGO_parts;
-			myGO_parts = myGO.GetComponent<Unit_PartPlacement>().parts;
-			myGO_parts.Clear();
-			int gOID = myGO.GetInstanceID();
-			//u16 playerID = blob.getPlayer().getNetworkID();
-			for (int i = 0; i < parts.Count; i++)
-			{
-				GameObject gO = parts[i];
-				myGO_parts.Add( gO );	
-				gO.GetComponent<Part_Info>().OwnerID = gOID;
-				//b.set_u16( "playerID", playerID );
-				gO.GetComponent<Part_Info>().ShipID = -1; // don't push on ship
-			}
+			GetComponent<Unit_PartPlacement>().parts = partsToAdd;
 		}
 	}
 
-	GameObject MakePart( Vector2 offset, Vector2 pos, float angle, int team = -1 )
+	void MakePart( Vector2 offset, Vector2 pos, float angle, int team = -1 )
 	{
-		GameObject part = GameObject.Instantiate(partPrefab, pos + offset, Quaternion.identity) as GameObject;
-		NetworkServer.Spawn(part);
-		if (part != null) 
-		{
-			//part.getSprite().SetFrame( blockType );
-			//part.set_f32( "weight", Block::getWeight( block ) );
-			Vector3 eulerAngle = new Vector3(0, 0, angle);
-			part.transform.rotation = Quaternion.Euler(eulerAngle);
+		Vector3 eulerAngle = new Vector3(0, 0, angle);
+		Networking.Instantiate(partPrefab, pos + offset, Quaternion.Euler(eulerAngle), NetworkReceivers.All, PartSpawned);
+	}
+		
+	void PartSpawned( SimpleNetworkedMonoBehavior part )
+	{
+		//part.getSprite().SetFrame( blockType );
+		//part.set_f32( "weight", Block::getWeight( block ) );
+		GameObject partGO = part.gameObject;
 
-			part.GetComponent<Part_Info>().ShipID = 0;
-			part.GetComponent<Part_Info>().PlacedTime = Time.time;
-		}
-		return part;
+		partsToAdd.Add( partGO );	
+		partGO.GetComponent<Part_Info>().OwnerID = gOID;
+		//b.set_u16( "playerID", playerID );
+		partGO.GetComponent<Part_Info>().ShipID = -1; // don't push on ship
+
+		part.GetComponent<Part_Info>().ShipID = 0;
+		part.GetComponent<Part_Info>().PlacedTime = Time.time;
+
+		Debug.Log("part spawned");
 	}
 }

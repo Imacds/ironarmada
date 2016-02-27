@@ -11,7 +11,8 @@ using Steamworks;
 	Author : Hannah Crawford
 */
 
-public class PlayerController : NetworkedMonoBehavior{
+public class PlayerController : NetworkedMonoBehavior
+{
 	public string steamName = "Unknown Player";
 
 	// The pawn to spawn when the client joins.
@@ -33,14 +34,17 @@ public class PlayerController : NetworkedMonoBehavior{
 	}
 
 	// Callback
-	void PawnSpawned(SimpleNetworkedMonoBehavior pawnSnmb){
+	void PawnSpawned(SimpleNetworkedMonoBehavior pawnSnmb)
+	{
 		Debug.Log("Pawn Spawned");
 		pawnSnmb.transform.position = transform.position;
 		RPC("PossessPawn", NetworkReceivers.AllBuffered, pawnSnmb.NetworkedId, OwnerId);
 	}
 
-	void Update (){
-		if(possesedPawn){
+	void Update ()
+	{
+		if(possesedPawn)
+		{
 			possesedPawn.ControlledUpdateAll(this);
 			if(possesedPawn.IsOwner) possesedPawn.ControlledUpdateOwner(this);
 			else possesedPawn.ControlledUpdateNonOwner(this);
@@ -62,7 +66,8 @@ public class PlayerController : NetworkedMonoBehavior{
 	// Sets possessedPawn to the pawn with the matching id.
 	// Changes the owner of the pawn to the player with the matching id.
 	// Notifies the pawn that is has been possessed with the network id of the PlayerController that possessed it.
-	[BRPC] void PossessPawn(ulong pawnNetworkedId, ulong playerNetworkedId){
+	[BRPC] void PossessPawn(ulong pawnNetworkedId, ulong playerNetworkedId)
+	{
 		Pawn[] pawns = FindObjectsOfType<Pawn>();
 		for(int i=0; i<pawns.Length; i++){
 			if(pawns[i].NetworkedId == pawnNetworkedId){
