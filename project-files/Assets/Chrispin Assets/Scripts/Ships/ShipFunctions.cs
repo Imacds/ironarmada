@@ -9,10 +9,10 @@ public class ShipFunctions : MonoBehaviour
 	public static Ship getShip( int shipID )
 	{		
 		GameInfo gameInfo = GameObject.Find("GameManager").GetComponent<GameInfo>();
-		Ship[] ships = gameInfo.AllShips;
-		if ( ships.Length > 0 )		//if (gameInfo.Get<Ship[]>( "ships", out ships ))	must create a global dictionary to use something similar to rules.get(), GameInfo.get()?
+		List<Ship> ships = gameInfo.AllShips;
+		if ( ships.Count > 0 )		//if (gameInfo.Get<Ship[]>( "ships", out ships ))	must create a global dictionary to use something similar to rules.get(), GameInfo.get()?
 		{
-			if (shipID > 0 && shipID <= ships.Length)
+			if (shipID > 0 && shipID <= ships.Count)
 			{
 				return ships[shipID-1];
 			}
@@ -96,7 +96,7 @@ public class ShipFunctions : MonoBehaviour
 		for (uint i=0; i < mothershipParts.Length; i++)
 		{
 			GameObject mSPart = mothershipParts[i];  
-			if (mSPart.GetComponent<Generic_Team>().TeamNum == team)
+			if (mSPart.GetComponent<Part_Info>().TeamNum == team)
 			{
 				return mSPart;
 			}
@@ -142,7 +142,7 @@ public class ShipFunctions : MonoBehaviour
 		GameObject[] cores = GameObject.FindGameObjectsWithTag("mothership");
 		for ( ushort i = 0; i < cores.Length; i++ )
 		{
-			if ( cores[i].GetComponent<Generic_Team>().TeamNum != team )
+			if ( cores[i].GetComponent<Part_Info>().TeamNum != team )
 				continue;
 
 			Ship ship = getShip( cores[i].GetComponent<Part_Info>().ShipID );
@@ -166,7 +166,7 @@ public class ShipFunctions : MonoBehaviour
 
 	public static bool partOverlappingShip( GameObject part )
 	{
-		Collider2D[] overlappingColliders = Physics2D.OverlapCircleAll(part.transform.position, 8.0f );;
+		Collider2D[] overlappingColliders = Physics2D.OverlapCircleAll(part.transform.position, gridSize/2.0f );
 		if ( overlappingColliders.Length > 0 )
 		{
 			for (uint i = 0; i < overlappingColliders.Length; i++)

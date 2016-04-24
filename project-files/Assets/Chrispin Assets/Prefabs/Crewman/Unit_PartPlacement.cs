@@ -38,19 +38,6 @@ public class Unit_PartPlacement : Pawn
 		}
 	}
 
-	Vector2 RotateVector2( Vector2 v, float angle )
-	{
-		float sin = Mathf.Sin(angle);
-		float cos = Mathf.Cos(angle);
-
-		float tx = v.x;
-		float ty = v.y;
-		v.x = (cos*tx) - (sin*ty);
-		v.y = (cos*ty) + (sin*tx);
-
-		return v;
-	}
-
 	void Update()
 	{
 		GameObject myGO = this.gameObject;
@@ -245,13 +232,13 @@ public class Unit_PartPlacement : Pawn
 		Vector2 refPOffset = refPartPos2D - ship_pos;
 		float gridSize = ShipFunctions.gridSize;
 		float halfGridSize = gridSize/2.0f;
-		refPOffset = RotateVector2(refPOffset, -refPAngle);
+		refPOffset = MathF2.RotateVector2(refPOffset, -refPAngle);
 		refPOffset.x = refPOffset.x % gridSize;
 		refPOffset.y = refPOffset.y % gridSize;
 		//not really necessary
 		if ( refPOffset.x > halfGridSize )	refPOffset.x -= gridSize;	else if ( refPOffset.x < -halfGridSize )	refPOffset.x += gridSize;
 		if ( refPOffset.y > halfGridSize )	refPOffset.y -= gridSize;	else if ( refPOffset.y < -halfGridSize )	refPOffset.y += gridSize;
-		refPOffset = RotateVector2(refPOffset, refPAngle);
+		refPOffset = MathF2.RotateVector2(refPOffset, refPAngle);
 
 		ship_pos += refPOffset;
 		Vector2 mouseAim = aimPos - pos;
@@ -259,9 +246,9 @@ public class Unit_PartPlacement : Pawn
 		mouseAim.Normalize();
 		aimPos = pos + mouseAim * mouseDist;//position of the 'buildpart' pointer
 		Vector2 shipAim = aimPos - ship_pos;//ship to 'buildpart' pointer
-		shipAim = RotateVector2( shipAim, -refPAngle );
+		shipAim = MathF2.RotateVector2( shipAim, -refPAngle );
 		shipAim = ShipFunctions.RelSnapToGrid( shipAim );
-		shipAim = RotateVector2( shipAim, refPAngle );
+		shipAim = MathF2.RotateVector2( shipAim, refPAngle );
 		Vector2 cursor_pos = ship_pos + shipAim;//position of snapped build part
 
 		//rotate and position parts
@@ -269,8 +256,8 @@ public class Unit_PartPlacement : Pawn
 		{
 			GameObject part = parts[i];
 			Vector2 offset = part.GetComponent<Part_Info>().Offset;
-			offset = RotateVector2( offset, parts_angle );
-			offset = RotateVector2( offset, refPAngle );               
+			offset = MathF2.RotateVector2( offset, parts_angle );
+			offset = MathF2.RotateVector2( offset, refPAngle );               
 
 			part.transform.position = cursor_pos + offset;	//align to ship grid
 			part.transform.eulerAngles = new Vector3(0, 0, ( refPAngle + parts_angle ) % 360.0f);
@@ -305,8 +292,8 @@ public class Unit_PartPlacement : Pawn
 		{
 			GameObject part = parts[i];
 			Vector2 offset = part.GetComponent<Part_Info>().Offset;
-			offset = RotateVector2( offset, parts_angle );
-			offset = RotateVector2( offset, refPAngle );               
+			offset = MathF2.RotateVector2( offset, parts_angle );
+			offset = MathF2.RotateVector2( offset, refPAngle );               
 
 			part.transform.position = cursor_pos + offset;	//align to ship grid
 			part.transform.eulerAngles = new Vector3(0, 0, ( refPAngle + parts_angle ) % 360.0f);
@@ -338,7 +325,7 @@ public class Unit_PartPlacement : Pawn
 		bool blocksPlaced = false;
 		if (parts.Count > 0)                 
 		{	
-			PositionParts( shipPos + RotateVector2(pos_offset, angleDelta), shipPos + RotateVector2(aimPos_offset, angleDelta),
+			PositionParts( shipPos + MathF2.RotateVector2(pos_offset, angleDelta), shipPos + MathF2.RotateVector2(aimPos_offset, angleDelta),
 				target_angle, centerPart, refGO );
 
 			if ( true )
@@ -360,7 +347,7 @@ public class Unit_PartPlacement : Pawn
 							ship_part.gameObjectID = gO.GetInstanceID();
 							Vector2 gOTransPos2D = gO.transform.position;
 							ship_part.offset = gOTransPos2D - shipPos;
-							ship_part.offset = RotateVector2(ship_part.offset, -shipAngle);
+							ship_part.offset = MathF2.RotateVector2(ship_part.offset, -shipAngle);
 							ship_part.angle_offset = gO.transform.eulerAngles.z - shipAngle;
 							gO.GetComponent<Part_Info>().OwnerID = shipID;
 							ship.parts.Add(ship_part);	

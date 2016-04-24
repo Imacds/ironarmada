@@ -4,8 +4,8 @@ using System.Collections.Generic;
 
 public class GameInfo : MonoBehaviour 
 {
-	Ship[] allShips;
-	public Ship[] AllShips
+	List<Ship> allShips;
+	public List<Ship> AllShips
 	{
 		get
 		{

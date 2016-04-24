@@ -16,6 +16,7 @@ public class Ship
 	public uint soundsPlayed;
 	public string owner;
 	public bool isMothership;
+	public bool isStation;
 
 	Vector2 net_pos, net_vel;
 	float net_angle, net_angle_vel;
@@ -25,6 +26,7 @@ public class Ship
 		angle = angle_vel = old_angle = mass = carryMass = 0.0f;
 		initialized = false;
 		isMothership = false;
+		isStation = false;
 		@centerPart = null;
 		soundsPlayed = 0;
 		owner = "";
